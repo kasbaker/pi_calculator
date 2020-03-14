@@ -1,14 +1,15 @@
 """Calculate pi to N digits using Gauss-Legendre algorithm"""
-from decimal import *
+from decimal import Decimal
+from decimal import getcontext
 
 N = 10000     # max decimal points displayed
 getcontext().prec = N
 
 # starting values for algorithm
-a_ = Decimal(1)
-b_ = Decimal(2 ** (-.5))
-t_ = Decimal(.25)
-p_ = Decimal(1)
+A = Decimal(1)
+B = Decimal(2 ** (-.5))
+T = Decimal(.25)
+P = Decimal(1)
 
 
 def gen_abtp(a, b, t, p):
@@ -22,7 +23,7 @@ def gen_abtp(a, b, t, p):
 
 def gen_pi(a, b, t, p, n):
     """Generates the next estimate of pi from the algorithm"""
-    for x in range(n):
+    for _ in range(n):
         yield ((a+b)**2)/(4*t)
         (a, b, t, p) = next(gen_abtp(a, b, t, p))
 
@@ -30,17 +31,15 @@ def gen_pi(a, b, t, p, n):
 def calc_n_digits_pi(n):
     """Calculates pi to an accuracy of at least n digits and then returns the result"""
     max_error = Decimal(10) ** (-n)
-    estimate = Decimal(1)
-    for pi_gen in gen_pi(a_, b_, t_, p_, 100):
-        if abs(estimate - pi_gen) < max_error:
+    pi_approx = Decimal(1)
+    for pi_gen in gen_pi(A, B, T, P, 100):
+        if abs(pi_approx - pi_gen) < max_error:
             return pi_gen.quantize(max_error)
-        else:
-            estimate = pi_gen
-            continue
+        pi_approx = pi_gen
 
 
 def main():
-    # calculate pi to this many digits
+    """Prompts user to calculate pi to this many digits then displays the result."""
     print("\n"*100)
     print("Welcome to the pi calculator!")
 
@@ -62,11 +61,11 @@ def main():
             continue
 
         # calculate pi
-        pi = calc_n_digits_pi(digits-1)
-        print(f"Pi is approximately: {pi}\n")
+        pi_est = calc_n_digits_pi(digits-1)
+        print(f"Pi is approximately: {pi_est}\n")
 
         user_input = None
-        while user_input != 'y' and user_input != 'n':
+        while user_input not in ('y', 'n'):
             user_input = input("Would you like to calculate again? y/n ").lower()
             if user_input == 'y':
                 print("\nYay pi!")
